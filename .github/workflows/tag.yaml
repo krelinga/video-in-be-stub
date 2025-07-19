@@ -7,7 +7,7 @@ name: Build and Push Docker Image
       - 'v*.*.*'  # Trigger only on semantic tags like v1.0.0
 
 permissions:
-  contents: read  # Required for checkout
+  contents: write  # Required for checkout and creating releases
 
 jobs:
   build-and-push:
@@ -39,3 +39,14 @@ jobs:
           tags: |
             krelinga/video-in-be-stub:${{ env.TAG }}
             krelinga/video-in-be-stub:latest
+
+      - name: Create GitHub Release
+        run: |
+          gh release create ${{ env.TAG }} \
+            --title "Release ${{ env.TAG }}" \
+            --notes "Docker image for this release has been pushed to Docker Hub:
+          - \`krelinga/video-in-be-stub:${{ env.TAG }}\`
+          - \`krelinga/video-in-be-stub:latest\`" \
+            --latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
