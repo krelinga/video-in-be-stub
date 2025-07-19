@@ -17,10 +17,10 @@ import (
 func TestEndToEnd_HelloWorld(t *testing.T) {
 	ctx := context.Background()
 
-	// Build and start the container using the Dockerfile
+	// Build and start the container using the Dockerfile from parent directory
 	req := testcontainers.ContainerRequest{
 		FromDockerfile: testcontainers.FromDockerfile{
-			Context:    ".",
+			Context:    "..",
 			Dockerfile: "Dockerfile",
 		},
 		ExposedPorts: []string{"8080/tcp"},
