@@ -41,12 +41,12 @@ jobs:
             krelinga/video-in-be-stub:latest
 
       - name: Create GitHub Release
-        run: |
-          gh release create ${{ env.TAG }} \
-            --title "Release ${{ env.TAG }}" \
-            --notes "Docker image for this release has been pushed to Docker Hub:
-          - \`krelinga/video-in-be-stub:${{ env.TAG }}\`
-          - \`krelinga/video-in-be-stub:latest\`" \
-            --latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: "Release ${{ env.TAG }}"
+          body: |
+            Docker image for this release has been pushed to Docker Hub:
+            - `krelinga/video-in-be-stub:${{ env.TAG }}`
+            - `krelinga/video-in-be-stub:latest`
+          make_latest: true
