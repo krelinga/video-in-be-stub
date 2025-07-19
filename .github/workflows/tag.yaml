@@ -49,4 +49,5 @@ jobs:
             Docker image for this release has been pushed to Docker Hub:
             - `krelinga/video-in-be-stub:${{ env.TAG }}`
             - `krelinga/video-in-be-stub:latest`
+          generate_release_notes: true
           make_latest: true
