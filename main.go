@@ -11,8 +11,61 @@ import (
 	"connectrpc.com/connect"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
+
+// LoggingInterceptor implements connect.Interceptor to log all RPC calls
+type LoggingInterceptor struct{}
+
+// WrapUnary implements the Interceptor interface for unary RPC calls
+func (l *LoggingInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
+	return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+		// Get the procedure name from the request
+		procedure := req.Spec().Procedure
+
+		// Convert request message to JSON for logging
+		reqJSON := ""
+		if req.Any() != nil {
+			if msg, ok := req.Any().(proto.Message); ok {
+				if jsonBytes, err := protojson.Marshal(msg); err == nil {
+					reqJSON = string(jsonBytes)
+				}
+			}
+		}
+
+		// Call the actual handler
+		resp, err := next(ctx, req)
+
+		// Log the RPC call with error handling
+		if err != nil {
+			log.Printf("RPC Call [%s] - Request: %s - Error: %v", procedure, reqJSON, err)
+		} else {
+			// Convert response message to JSON for logging (if successful)
+			respJSON := ""
+			if resp != nil && resp.Any() != nil {
+				if msg, ok := resp.Any().(proto.Message); ok {
+					if jsonBytes, errJSON := protojson.Marshal(msg); errJSON == nil {
+						respJSON = string(jsonBytes)
+					}
+				}
+			}
+			log.Printf("RPC Call [%s] - Request: %s - Response: %s", procedure, reqJSON, respJSON)
+		}
+
+		return resp, err
+	}
+}
+
+// WrapStreamingClient implements the Interceptor interface for streaming client calls
+func (l *LoggingInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {
+	return next // No streaming clients in this stub service
+}
+
+// WrapStreamingHandler implements the Interceptor interface for streaming handler calls
+func (l *LoggingInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
+	return next // No streaming handlers in this stub service
+}
 
 // RequestResponseMapping represents a mapping between a request and its corresponding response
 type RequestResponseMapping[Req, Resp proto.Message] struct {
@@ -180,7 +233,15 @@ func NewStubService() *StubService {
 
 func main() {
 	stubService := NewStubService()
-	path, handler := inv1connect.NewServiceHandler(stubService)
+	
+	// Create the logging interceptor
+	loggingInterceptor := &LoggingInterceptor{}
+	
+	// Create the handler with the logging interceptor
+	path, handler := inv1connect.NewServiceHandler(
+		stubService,
+		connect.WithInterceptors(loggingInterceptor),
+	)
 	
 	mux := http.NewServeMux()
 	mux.Handle(path, handler)
