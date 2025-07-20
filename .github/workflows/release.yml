@@ -12,8 +12,10 @@ permissions:
   contents: write
 
 jobs:
-  create-release-tag:
+  release:
     runs-on: ubuntu-latest
+    environment: prod  # Run in prod environment
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
