@@ -1,6 +1,6 @@
 module github.com/krelinga/video-in-be-stub
 
-go 1.24.4
+go 1.24.3
 
 require (
 	buf.build/gen/go/krelinga/proto/connectrpc/go v1.18.1-20250520014906-8df66cd15ed2.1
