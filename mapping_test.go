@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	v1 "buf.build/gen/go/krelinga/proto/protocolbuffers/go/krelinga/video/in/v1"
@@ -55,7 +56,10 @@ func TestStubService_HelloWorld_Mapping(t *testing.T) {
 				if err == nil {
 					t.Fatal("Expected error but got none")
 				}
-				connectErr := err.(*connect.Error)
+				var connectErr *connect.Error
+				if !errors.As(err, &connectErr) {
+					t.Fatal("Expected connect.Error but got different error type")
+				}
 				if connectErr.Code() != tt.expectedErrCode {
 					t.Fatalf("Expected error code %v, got %v", tt.expectedErrCode, connectErr.Code())
 				}
@@ -85,7 +89,10 @@ func TestStubService_ProjectList_NotFound(t *testing.T) {
 		t.Fatal("Expected error but got none")
 	}
 
-	connectErr := err.(*connect.Error)
+	var connectErr *connect.Error
+	if !errors.As(err, &connectErr) {
+		t.Fatal("Expected connect.Error but got different error type")
+	}
 	if connectErr.Code() != connect.CodeNotFound {
 		t.Fatalf("Expected NOT_FOUND error, got %v", connectErr.Code())
 	}
@@ -183,7 +190,10 @@ func TestStubService_AllMethods_ReturnNotFound(t *testing.T) {
 				t.Fatal("Expected NOT_FOUND error but got none")
 			}
 
-			connectErr := err.(*connect.Error)
+			var connectErr *connect.Error
+			if !errors.As(err, &connectErr) {
+				t.Fatal("Expected connect.Error but got different error type")
+			}
 			if connectErr.Code() != connect.CodeNotFound {
 				t.Fatalf("Expected NOT_FOUND error, got %v", connectErr.Code())
 			}
