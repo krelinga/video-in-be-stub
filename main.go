@@ -11,68 +11,175 @@ import (
 	"connectrpc.com/connect"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"google.golang.org/protobuf/proto"
 )
 
-// StubService implements the ServiceHandler interface with empty responses
-type StubService struct{}
+// RequestResponseMapping represents a mapping between a request and its corresponding response
+type RequestResponseMapping[Req, Resp proto.Message] struct {
+	Request  Req
+	Response Resp
+}
 
-// HelloWorld returns an empty HelloWorldResponse
+// StubService implements the ServiceHandler interface with configurable responses
+type StubService struct {
+	// Mappings for each RPC method
+	helloWorldMappings              []RequestResponseMapping[*v1.HelloWorldRequest, *v1.HelloWorldResponse]
+	projectListMappings             []RequestResponseMapping[*v1.ProjectListRequest, *v1.ProjectListResponse]
+	projectNewMappings              []RequestResponseMapping[*v1.ProjectNewRequest, *v1.ProjectNewResponse]
+	unclaimedDiscDirListMappings    []RequestResponseMapping[*v1.UnclaimedDiscDirListRequest, *v1.UnclaimedDiscDirListResponse]
+	projectAssignDiskDirsMappings   []RequestResponseMapping[*v1.ProjectAssignDiskDirsRequest, *v1.ProjectAssignDiskDirsResponse]
+	projectGetMappings              []RequestResponseMapping[*v1.ProjectGetRequest, *v1.ProjectGetResponse]
+	projectCategorizeFilesMappings  []RequestResponseMapping[*v1.ProjectCategorizeFilesRequest, *v1.ProjectCategorizeFilesResponse]
+	movieSearchMappings             []RequestResponseMapping[*v1.MovieSearchRequest, *v1.MovieSearchResponse]
+	projectSetMetadataMappings      []RequestResponseMapping[*v1.ProjectSetMetadataRequest, *v1.ProjectSetMetadataResponse]
+	projectFinishMappings           []RequestResponseMapping[*v1.ProjectFinishRequest, *v1.ProjectFinishResponse]
+	projectAbandonMappings          []RequestResponseMapping[*v1.ProjectAbandonRequest, *v1.ProjectAbandonResponse]
+}
+
+// findMatchingResponse searches for a matching request and returns the corresponding response
+func findMatchingResponse[Req, Resp proto.Message](req Req, mappings []RequestResponseMapping[Req, Resp]) (Resp, error) {
+	for _, mapping := range mappings {
+		if proto.Equal(req, mapping.Request) {
+			return mapping.Response, nil
+		}
+	}
+	var zero Resp
+	return zero, connect.NewError(connect.CodeNotFound, fmt.Errorf("no matching request found"))
+}
+
+// HelloWorld searches for a matching request and returns the corresponding response
 func (s *StubService) HelloWorld(ctx context.Context, req *connect.Request[v1.HelloWorldRequest]) (*connect.Response[v1.HelloWorldResponse], error) {
-	return connect.NewResponse(&v1.HelloWorldResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.helloWorldMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
 }
 
-// ProjectList returns an empty ProjectListResponse
+// ProjectList searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectList(ctx context.Context, req *connect.Request[v1.ProjectListRequest]) (*connect.Response[v1.ProjectListResponse], error) {
-	return connect.NewResponse(&v1.ProjectListResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.projectListMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
 }
 
-// ProjectNew returns an empty ProjectNewResponse
+// ProjectNew searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectNew(ctx context.Context, req *connect.Request[v1.ProjectNewRequest]) (*connect.Response[v1.ProjectNewResponse], error) {
-	return connect.NewResponse(&v1.ProjectNewResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.projectNewMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
 }
 
-// UnclaimedDiscDirList returns an empty UnclaimedDiscDirListResponse
+// UnclaimedDiscDirList searches for a matching request and returns the corresponding response
 func (s *StubService) UnclaimedDiscDirList(ctx context.Context, req *connect.Request[v1.UnclaimedDiscDirListRequest]) (*connect.Response[v1.UnclaimedDiscDirListResponse], error) {
-	return connect.NewResponse(&v1.UnclaimedDiscDirListResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.unclaimedDiscDirListMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
 }
 
-// ProjectAssignDiskDirs returns an empty ProjectAssignDiskDirsResponse
+// ProjectAssignDiskDirs searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectAssignDiskDirs(ctx context.Context, req *connect.Request[v1.ProjectAssignDiskDirsRequest]) (*connect.Response[v1.ProjectAssignDiskDirsResponse], error) {
-	return connect.NewResponse(&v1.ProjectAssignDiskDirsResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.projectAssignDiskDirsMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
 }
 
-// ProjectGet returns an empty ProjectGetResponse
+// ProjectGet searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectGet(ctx context.Context, req *connect.Request[v1.ProjectGetRequest]) (*connect.Response[v1.ProjectGetResponse], error) {
-	return connect.NewResponse(&v1.ProjectGetResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.projectGetMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
 }
 
-// ProjectCategorizeFiles returns an empty ProjectCategorizeFilesResponse
+// ProjectCategorizeFiles searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectCategorizeFiles(ctx context.Context, req *connect.Request[v1.ProjectCategorizeFilesRequest]) (*connect.Response[v1.ProjectCategorizeFilesResponse], error) {
-	return connect.NewResponse(&v1.ProjectCategorizeFilesResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.projectCategorizeFilesMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
 }
 
-// MovieSearch returns an empty MovieSearchResponse
+// MovieSearch searches for a matching request and returns the corresponding response
 func (s *StubService) MovieSearch(ctx context.Context, req *connect.Request[v1.MovieSearchRequest]) (*connect.Response[v1.MovieSearchResponse], error) {
-	return connect.NewResponse(&v1.MovieSearchResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.movieSearchMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
 }
 
-// ProjectSetMetadata returns an empty ProjectSetMetadataResponse
+// ProjectSetMetadata searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectSetMetadata(ctx context.Context, req *connect.Request[v1.ProjectSetMetadataRequest]) (*connect.Response[v1.ProjectSetMetadataResponse], error) {
-	return connect.NewResponse(&v1.ProjectSetMetadataResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.projectSetMetadataMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
 }
 
-// ProjectFinish returns an empty ProjectFinishResponse
+// ProjectFinish searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectFinish(ctx context.Context, req *connect.Request[v1.ProjectFinishRequest]) (*connect.Response[v1.ProjectFinishResponse], error) {
-	return connect.NewResponse(&v1.ProjectFinishResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.projectFinishMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
 }
 
-// ProjectAbandon returns an empty ProjectAbandonResponse
+// ProjectAbandon searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectAbandon(ctx context.Context, req *connect.Request[v1.ProjectAbandonRequest]) (*connect.Response[v1.ProjectAbandonResponse], error) {
-	return connect.NewResponse(&v1.ProjectAbandonResponse{}), nil
+	resp, err := findMatchingResponse(req.Msg, s.projectAbandonMappings)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(resp), nil
+}
+
+// NewStubService creates a new StubService with predefined request/response mappings
+func NewStubService() *StubService {
+	return &StubService{
+		// Example mapping for HelloWorld
+		helloWorldMappings: []RequestResponseMapping[*v1.HelloWorldRequest, *v1.HelloWorldResponse]{
+			{
+				Request:  &v1.HelloWorldRequest{Name: ""},
+				Response: &v1.HelloWorldResponse{Message: "Hello, empty!"},
+			},
+			{
+				Request:  &v1.HelloWorldRequest{Name: "test"},
+				Response: &v1.HelloWorldResponse{Message: "Hello, test!"},
+			},
+			{
+				Request:  &v1.HelloWorldRequest{Name: "world"},
+				Response: &v1.HelloWorldResponse{Message: "Hello, world!"},
+			},
+		},
+		// Other mappings are empty for now, will return NOT_FOUND
+		projectListMappings:             []RequestResponseMapping[*v1.ProjectListRequest, *v1.ProjectListResponse]{},
+		projectNewMappings:              []RequestResponseMapping[*v1.ProjectNewRequest, *v1.ProjectNewResponse]{},
+		unclaimedDiscDirListMappings:    []RequestResponseMapping[*v1.UnclaimedDiscDirListRequest, *v1.UnclaimedDiscDirListResponse]{},
+		projectAssignDiskDirsMappings:   []RequestResponseMapping[*v1.ProjectAssignDiskDirsRequest, *v1.ProjectAssignDiskDirsResponse]{},
+		projectGetMappings:              []RequestResponseMapping[*v1.ProjectGetRequest, *v1.ProjectGetResponse]{},
+		projectCategorizeFilesMappings:  []RequestResponseMapping[*v1.ProjectCategorizeFilesRequest, *v1.ProjectCategorizeFilesResponse]{},
+		movieSearchMappings:             []RequestResponseMapping[*v1.MovieSearchRequest, *v1.MovieSearchResponse]{},
+		projectSetMetadataMappings:      []RequestResponseMapping[*v1.ProjectSetMetadataRequest, *v1.ProjectSetMetadataResponse]{},
+		projectFinishMappings:           []RequestResponseMapping[*v1.ProjectFinishRequest, *v1.ProjectFinishResponse]{},
+		projectAbandonMappings:          []RequestResponseMapping[*v1.ProjectAbandonRequest, *v1.ProjectAbandonResponse]{},
+	}
 }
 
 func main() {
-	stubService := &StubService{}
+	stubService := NewStubService()
 	path, handler := inv1connect.NewServiceHandler(stubService)
 	
 	mux := http.NewServeMux()
