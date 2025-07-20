@@ -12,6 +12,9 @@ permissions:
   contents: write
 
 jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
   release:
     runs-on: ubuntu-latest
     environment: prod  # Run in prod environment
@@ -40,9 +43,6 @@ jobs:
             exit 1
           fi
           echo "Tag $RELEASE_NAME does not exist, proceeding with creation"
-      
-      - name: Run all tests
-        uses: ./.github/workflows/test.yml
 
       - name: Create and push tag
         run: |
