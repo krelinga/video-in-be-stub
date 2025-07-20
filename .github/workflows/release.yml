@@ -12,13 +12,8 @@ permissions:
   contents: write
 
 jobs:
-  test:
-    uses: ./.github/workflows/test.yml
-
-  release:
-    needs: test
+  prepare:
     runs-on: ubuntu-latest
-    environment: prod  # Run in prod environment
 
     steps:
       - name: Checkout code
@@ -44,6 +39,21 @@ jobs:
             exit 1
           fi
           echo "Tag $RELEASE_NAME does not exist, proceeding with creation"
+
+  test:
+    needs: prepare
+    uses: ./.github/workflows/test.yml
+
+  release:
+    needs: [prepare, test]
+    runs-on: ubuntu-latest
+    environment: prod  # Run in prod environment
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Create and push tag
         run: |
