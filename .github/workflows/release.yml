@@ -42,7 +42,7 @@ jobs:
           echo "Tag $RELEASE_NAME does not exist, proceeding with creation"
       
       - name: Run all tests
-        uses: ./.github/actions/test.yml
+        uses: ./.github/workflows/test.yml
 
       - name: Create and push tag
         run: |
