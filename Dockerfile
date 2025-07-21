@@ -1,20 +1,17 @@
 # Build stage
-FROM golang:1.24.4-alpine AS builder
+FROM golang:1.24.3-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy go mod files for dependency caching
-COPY go.mod go.sum ./
+# Copy source code
+COPY . .
 
 # Download dependencies
 RUN go mod download
 
-# Copy source code
-COPY main.go ./
-
 # Build the binary
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o video-in-be-stub main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o video-in-be-stub
 
 # Runtime stage
 FROM alpine:latest
