@@ -16,7 +16,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-func TestEndToEnd_HelloWorld(t *testing.T) {
+func TestEndToEnd(t *testing.T) {
 	ctx := context.Background()
 
 	// Build and start the container using the Dockerfile from parent directory
@@ -63,42 +63,46 @@ func TestEndToEnd_HelloWorld(t *testing.T) {
 		serviceURL,
 	)
 
-	// Call the HelloWorld method
-	req2 := connect.NewRequest(&v1.HelloWorldRequest{})
-	resp, err := client.HelloWorld(ctx, req2)
-	if err != nil {
-		t.Fatalf("HelloWorld call failed: %v", err)
-	}
+	t.Run("HelloWorld", func(t *testing.T) {
+		// Call the HelloWorld method
+		req2 := connect.NewRequest(&v1.HelloWorldRequest{})
+		resp, err := client.HelloWorld(ctx, req2)
+		if err != nil {
+			t.Fatalf("HelloWorld call failed: %v", err)
+		}
 
-	// Verify we got a response (even if it's empty as expected from the stub)
-	if resp == nil {
-		t.Fatal("Expected non-nil response")
-	}
+		// Verify we got a response (even if it's empty as expected from the stub)
+		if resp == nil {
+			t.Fatal("Expected non-nil response")
+		}
 
-	// Verify the response message is not nil
-	if resp.Msg == nil {
-		t.Fatal("Expected non-nil response message")
-	}
+		// Verify the response message is not nil
+		if resp.Msg == nil {
+			t.Fatal("Expected non-nil response message")
+		}
 
-	t.Logf("Successfully called HelloWorld method via container at %s", serviceURL)
+		t.Logf("Successfully called HelloWorld method via container at %s", serviceURL)
+	})
 
-	// Fetch container logs
-	logs, err := container.Logs(ctx)
-	if err != nil {
-		t.Fatalf("Failed to get container logs: %v", err)
-	}
-	defer logs.Close()
+	t.Run("Check RPC Call in Logs", func(t *testing.T) {
+		// Fetch container logs
+		logs, err := container.Logs(ctx)
+		if err != nil {
+			t.Fatalf("Failed to get container logs: %v", err)
+		}
+		defer logs.Close()
 
-	// Read logs into a string
-	logBytes, err := io.ReadAll(logs)
-	if err != nil {
-		t.Fatalf("Failed to read container logs: %v", err)
-	}
-	logStr := string(logBytes)
+		// Read logs into a string
+		logBytes, err := io.ReadAll(logs)
+		if err != nil {
+			t.Fatalf("Failed to read container logs: %v", err)
+		}
+		logStr := string(logBytes)
 
-	// Check for 'RPC Call' in logs
-	if !strings.Contains(logStr, "RPC Call") {
-		t.Fatalf("Expected 'RPC Call' in container logs, but it was not found. Logs:\n%s", logStr)
-	}
-	t.Log("'RPC Call' found in container logs.")
+		// Check for 'RPC Call' in logs
+		if !strings.Contains(logStr, "RPC Call") {
+			t.Fatalf("Expected 'RPC Call' in container logs, but it was not found. Logs:\n%s", logStr)
+		}
+		t.Log("'RPC Call' found in container logs.")
+	})
 }
