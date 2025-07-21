@@ -98,8 +98,8 @@ jobs:
           RELEASE_NAME="${{ github.event.inputs.release_name }}"
           REPO="${{ github.repository }}"
           GH_RELEASE_URL="https://github.com/$REPO/releases/tag/$RELEASE_NAME"
-          DOCKER_IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/video-in-be-stub:$RELEASE_NAME"
-          DOCKER_IMAGE_URL="https://hub.docker.com/r/${{ secrets.DOCKERHUB_USERNAME }}/video-in-be-stub/tags?page=1&name=$RELEASE_NAME"
+          DOCKER_IMAGE="${{ secrets.DOCKER_USER }}/video-in-be-stub:$RELEASE_NAME"
+          DOCKER_IMAGE_URL="https://hub.docker.com/r/${{ secrets.DOCKER_USER }}/video-in-be-stub/tags?page=1&name=$RELEASE_NAME"
 
           echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
           echo "✅ Release tag **$RELEASE_NAME** has been successfully created." >> $GITHUB_STEP_SUMMARY
