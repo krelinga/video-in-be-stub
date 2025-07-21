@@ -78,30 +78,6 @@ func TestStubService_HelloWorld_Mapping(t *testing.T) {
 	}
 }
 
-func TestStubService_ProjectList_NotFound(t *testing.T) {
-	service := NewStubService()
-	ctx := context.Background()
-
-	req := connect.NewRequest(&v1.ProjectListRequest{})
-	resp, err := service.ProjectList(ctx, req)
-
-	if err == nil {
-		t.Fatal("Expected error but got none")
-	}
-
-	var connectErr *connect.Error
-	if !errors.As(err, &connectErr) {
-		t.Fatal("Expected connect.Error but got different error type")
-	}
-	if connectErr.Code() != connect.CodeNotFound {
-		t.Fatalf("Expected NOT_FOUND error, got %v", connectErr.Code())
-	}
-
-	if resp != nil {
-		t.Fatal("Expected nil response on error")
-	}
-}
-
 func TestStubService_AllMethods_ReturnNotFound(t *testing.T) {
 	service := NewStubService()
 	ctx := context.Background()
@@ -111,13 +87,6 @@ func TestStubService_AllMethods_ReturnNotFound(t *testing.T) {
 		name string
 		call func() error
 	}{
-		{
-			name: "ProjectList",
-			call: func() error {
-				_, err := service.ProjectList(ctx, connect.NewRequest(&v1.ProjectListRequest{}))
-				return err
-			},
-		},
 		{
 			name: "ProjectNew",
 			call: func() error {

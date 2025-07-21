@@ -82,6 +82,38 @@ func TestEndToEnd(t *testing.T) {
 		}
 	})
 
+	t.Run("ProjectList", func(t *testing.T) {
+		// Call the ProjectList method
+		req := connect.NewRequest(&v1.ProjectListRequest{})
+		resp, err := client.ProjectList(ctx, req)
+		if err != nil {
+			t.Fatalf("ProjectList call failed: %v", err)
+		}
+
+		// Verify we got a response (even if it's empty as expected from the stub)
+		if resp == nil {
+			t.Fatal("Expected non-nil response")
+		}
+
+		// Verify the response message is not nil
+		if resp.Msg == nil {
+			t.Fatal("Expected non-nil response message")
+		}
+		expectedProjects := []string{"Empty", "Name With Spaces"}
+		for _, ep := range expectedProjects {
+			found := false
+			for _, p := range resp.Msg.Projects {
+				if p == ep {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Fatalf("Expected project '%s' not found in response", ep)
+			}
+		}
+	})
+
 	t.Run("Check RPC Call in Logs", func(t *testing.T) {
 		// Fetch container logs
 		logs, err := container.Logs(ctx)

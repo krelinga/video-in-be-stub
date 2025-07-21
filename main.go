@@ -110,10 +110,10 @@ func (s *StubService) HelloWorld(ctx context.Context, req *connect.Request[v1.He
 }
 
 // ProjectList searches for a matching request and returns the corresponding response
-func (s *StubService) ProjectList(ctx context.Context, req *connect.Request[v1.ProjectListRequest]) (*connect.Response[v1.ProjectListResponse], error) {
-	resp, err := findMatchingResponse(req.Msg, s.projectListMappings)
-	if err != nil {
-		return nil, err
+func (*StubService) ProjectList(ctx context.Context, req *connect.Request[v1.ProjectListRequest]) (*connect.Response[v1.ProjectListResponse], error) {
+	resp := &v1.ProjectListResponse{}
+	for _, p := range data.Projects {
+		resp.Projects = append(resp.Projects, p.Project)
 	}
 	return connect.NewResponse(resp), nil
 }
