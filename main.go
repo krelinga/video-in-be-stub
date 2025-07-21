@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"slices"
 
-	v1 "buf.build/gen/go/krelinga/proto/protocolbuffers/go/krelinga/video/in/v1"
 	"buf.build/gen/go/krelinga/proto/connectrpc/go/krelinga/video/in/v1/inv1connect"
+	v1 "buf.build/gen/go/krelinga/proto/protocolbuffers/go/krelinga/video/in/v1"
 	"connectrpc.com/connect"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -163,10 +164,9 @@ func (s *StubService) ProjectCategorizeFiles(ctx context.Context, req *connect.R
 
 // MovieSearch searches for a matching request and returns the corresponding response
 func (s *StubService) MovieSearch(ctx context.Context, req *connect.Request[v1.MovieSearchRequest]) (*connect.Response[v1.MovieSearchResponse], error) {
-	resp, err := findMatchingResponse(req.Msg, s.movieSearchMappings)
-	if err != nil {
-		return nil, err
-	}
+	resp := &v1.MovieSearchResponse{}
+	results := data.FindMetadata(req.Msg.PartialTitle)
+	resp.Results = slices.Collect(results)
 	return connect.NewResponse(resp), nil
 }
 

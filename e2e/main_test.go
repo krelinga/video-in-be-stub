@@ -172,6 +172,39 @@ func TestEndToEnd(t *testing.T) {
 		}
 	})
 
+	expectedMovieTitles := []string{"Movie 1", "Movie 2"}
+	t.Run("MovieSearch", func(t *testing.T) {
+		// Call the MovieSearch method with a partial title
+		req := connect.NewRequest(&v1.MovieSearchRequest{PartialTitle: "Movie"})
+		resp, err := client.MovieSearch(ctx, req)
+		if err != nil {
+			t.Fatalf("MovieSearch call failed: %v", err)
+		}
+
+		// Verify we got a response (even if it's empty as expected from the stub)
+		if resp == nil {
+			t.Fatal("Expected non-nil response")
+		}
+
+		// Verify the response message is not nil
+		if resp.Msg == nil {
+			t.Fatal("Expected non-nil response message")
+		}
+
+		for _, title := range expectedMovieTitles {
+			found := false
+			for _, result := range resp.Msg.Results {
+				if result.Title == title {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Fatalf("Expected movie title '%s' not found in response", title)
+			}
+		}
+	})
+
 	t.Run("Check RPC Call in Logs", func(t *testing.T) {
 		// Fetch container logs
 		logs, err := container.Logs(ctx)

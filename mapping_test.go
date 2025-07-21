@@ -109,13 +109,6 @@ func TestStubService_AllMethods_ReturnNotFound(t *testing.T) {
 			},
 		},
 		{
-			name: "MovieSearch",
-			call: func() error {
-				_, err := service.MovieSearch(ctx, connect.NewRequest(&v1.MovieSearchRequest{}))
-				return err
-			},
-		},
-		{
 			name: "ProjectSetMetadata",
 			call: func() error {
 				_, err := service.ProjectSetMetadata(ctx, connect.NewRequest(&v1.ProjectSetMetadataRequest{}))
