@@ -82,20 +82,43 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
+      - name: Extract version components
+        id: version
+        run: |
+          RELEASE_NAME="${{ github.event.inputs.release_name }}"
+          echo "full_version=$RELEASE_NAME" >> $GITHUB_OUTPUT
+
+          # Extract major version (v1)
+          MAJOR_VERSION=$(echo "$RELEASE_NAME" | cut -d'.' -f1)
+          echo "major_version=$MAJOR_VERSION" >> $GITHUB_OUTPUT
+
+          # Extract major.minor version (v1.2)
+          MAJOR_MINOR_VERSION=$(echo "$RELEASE_NAME" | cut -d'.' -f1,2)
+          echo "major_minor_version=$MAJOR_MINOR_VERSION" >> $GITHUB_OUTPUT
+
+          echo "Extracted versions:"
+          echo "  Full: $RELEASE_NAME"
+          echo "  Major: $MAJOR_VERSION"
+          echo "  Major.Minor: $MAJOR_MINOR_VERSION"
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_USER }}/video-in-be-stub:${{ github.event.inputs.release_name }}
+            ${{ secrets.DOCKER_USER }}/video-in-be-stub:${{ steps.version.outputs.full_version }}
+            ${{ secrets.DOCKER_USER }}/video-in-be-stub:${{ steps.version.outputs.major_version }}
+            ${{ secrets.DOCKER_USER }}/video-in-be-stub:${{ steps.version.outputs.major_minor_version }}
             ${{ secrets.DOCKER_USER }}/video-in-be-stub:latest
           build-args: |
-            VERSION=${{ github.event.inputs.release_name }}
+            VERSION=${{ steps.version.outputs.full_version }}
 
       - name: Release summary
         run: |
           RELEASE_NAME="${{ github.event.inputs.release_name }}"
+          MAJOR_VERSION="${{ steps.version.outputs.major_version }}"
+          MAJOR_MINOR_VERSION="${{ steps.version.outputs.major_minor_version }}"
           REPO="${{ github.repository }}"
           GH_RELEASE_URL="https://github.com/$REPO/releases/tag/$RELEASE_NAME"
           DOCKER_IMAGE="${{ secrets.DOCKER_USER }}/video-in-be-stub:$RELEASE_NAME"
@@ -106,3 +129,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- [GitHub Release]($GH_RELEASE_URL)" >> $GITHUB_STEP_SUMMARY
           echo "- Docker image: \`$DOCKER_IMAGE\` ([View on Docker Hub]($DOCKER_IMAGE_URL))" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Docker Tags Created:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ secrets.DOCKER_USER }}/video-in-be-stub:$RELEASE_NAME\` (full version)" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ secrets.DOCKER_USER }}/video-in-be-stub:$MAJOR_VERSION\` (major version)" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ secrets.DOCKER_USER }}/video-in-be-stub:$MAJOR_MINOR_VERSION\` (major.minor version)" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ secrets.DOCKER_USER }}/video-in-be-stub:latest\` (latest)" >> $GITHUB_STEP_SUMMARY
