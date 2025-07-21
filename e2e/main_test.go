@@ -82,6 +82,7 @@ func TestEndToEnd(t *testing.T) {
 		}
 	})
 
+	expectedProjects := []string{"Empty", "Name With Spaces"}
 	t.Run("ProjectList", func(t *testing.T) {
 		// Call the ProjectList method
 		req := connect.NewRequest(&v1.ProjectListRequest{})
@@ -99,7 +100,6 @@ func TestEndToEnd(t *testing.T) {
 		if resp.Msg == nil {
 			t.Fatal("Expected non-nil response message")
 		}
-		expectedProjects := []string{"Empty", "Name With Spaces"}
 		for _, ep := range expectedProjects {
 			found := false
 			for _, p := range resp.Msg.Projects {
@@ -111,6 +111,34 @@ func TestEndToEnd(t *testing.T) {
 			if !found {
 				t.Fatalf("Expected project '%s' not found in response", ep)
 			}
+		}
+	})
+
+	t.Run("ProjectGet", func(t *testing.T) {
+		for _, projectName := range expectedProjects {
+			t.Run(projectName, func(t *testing.T) {
+				// Call the ProjectGet method
+				req := connect.NewRequest(&v1.ProjectGetRequest{Project: projectName})
+				resp, err := client.ProjectGet(ctx, req)
+				if err != nil {
+					t.Fatalf("ProjectGet call failed for project '%s': %v", projectName, err)
+				}
+
+				// Verify we got a response (even if it's empty as expected from the stub)
+				if resp == nil {
+					t.Fatal("Expected non-nil response")
+				}
+
+				// Verify the response message is not nil
+				if resp.Msg == nil {
+					t.Fatal("Expected non-nil response message")
+				}
+
+				// Verify the project name matches
+				if resp.Msg.Project != projectName {
+					t.Fatalf("Expected project '%s', got '%s'", projectName, resp.Msg.Project)
+				}
+			})
 		}
 	})
 

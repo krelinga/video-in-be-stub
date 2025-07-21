@@ -147,11 +147,11 @@ func (s *StubService) ProjectAssignDiskDirs(ctx context.Context, req *connect.Re
 
 // ProjectGet searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectGet(ctx context.Context, req *connect.Request[v1.ProjectGetRequest]) (*connect.Response[v1.ProjectGetResponse], error) {
-	resp, err := findMatchingResponse(req.Msg, s.projectGetMappings)
-	if err != nil {
-		return nil, err
+	found := data.FindProject(req.Msg.Project)
+	if found == nil {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("project not found: %s", req.Msg.Project))
 	}
-	return connect.NewResponse(resp), nil
+	return connect.NewResponse(found), nil
 }
 
 // ProjectCategorizeFiles searches for a matching request and returns the corresponding response

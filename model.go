@@ -8,6 +8,15 @@ type Model struct {
 	Metadata []*v1.MovieSearchResult
 }
 
+func (m *Model) FindProject(name string) *v1.ProjectGetResponse {
+	for _, p := range m.Projects {
+		if p.Project == name {
+			return p
+		}
+	}
+	return nil
+}
+
 var data = &Model{
 	Projects: []*v1.ProjectGetResponse{
 		{

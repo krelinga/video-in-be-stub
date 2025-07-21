@@ -109,13 +109,6 @@ func TestStubService_AllMethods_ReturnNotFound(t *testing.T) {
 			},
 		},
 		{
-			name: "ProjectGet",
-			call: func() error {
-				_, err := service.ProjectGet(ctx, connect.NewRequest(&v1.ProjectGetRequest{}))
-				return err
-			},
-		},
-		{
 			name: "ProjectCategorizeFiles",
 			call: func() error {
 				_, err := service.ProjectCategorizeFiles(ctx, connect.NewRequest(&v1.ProjectCategorizeFilesRequest{}))
