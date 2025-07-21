@@ -77,17 +77,7 @@ type RequestResponseMapping[Req, Resp proto.Message] struct {
 // StubService implements the ServiceHandler interface with configurable responses
 type StubService struct {
 	// Mappings for each RPC method
-	helloWorldMappings              []RequestResponseMapping[*v1.HelloWorldRequest, *v1.HelloWorldResponse]
-	projectListMappings             []RequestResponseMapping[*v1.ProjectListRequest, *v1.ProjectListResponse]
-	projectNewMappings              []RequestResponseMapping[*v1.ProjectNewRequest, *v1.ProjectNewResponse]
-	unclaimedDiscDirListMappings    []RequestResponseMapping[*v1.UnclaimedDiscDirListRequest, *v1.UnclaimedDiscDirListResponse]
-	projectAssignDiskDirsMappings   []RequestResponseMapping[*v1.ProjectAssignDiskDirsRequest, *v1.ProjectAssignDiskDirsResponse]
-	projectGetMappings              []RequestResponseMapping[*v1.ProjectGetRequest, *v1.ProjectGetResponse]
-	projectCategorizeFilesMappings  []RequestResponseMapping[*v1.ProjectCategorizeFilesRequest, *v1.ProjectCategorizeFilesResponse]
-	movieSearchMappings             []RequestResponseMapping[*v1.MovieSearchRequest, *v1.MovieSearchResponse]
-	projectSetMetadataMappings      []RequestResponseMapping[*v1.ProjectSetMetadataRequest, *v1.ProjectSetMetadataResponse]
-	projectFinishMappings           []RequestResponseMapping[*v1.ProjectFinishRequest, *v1.ProjectFinishResponse]
-	projectAbandonMappings          []RequestResponseMapping[*v1.ProjectAbandonRequest, *v1.ProjectAbandonResponse]
+	helloWorldMappings             []RequestResponseMapping[*v1.HelloWorldRequest, *v1.HelloWorldResponse]
 }
 
 // findMatchingResponse searches for a matching request and returns the corresponding response
@@ -121,11 +111,7 @@ func (*StubService) ProjectList(ctx context.Context, req *connect.Request[v1.Pro
 
 // ProjectNew searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectNew(ctx context.Context, req *connect.Request[v1.ProjectNewRequest]) (*connect.Response[v1.ProjectNewResponse], error) {
-	resp, err := findMatchingResponse(req.Msg, s.projectNewMappings)
-	if err != nil {
-		return nil, err
-	}
-	return connect.NewResponse(resp), nil
+	return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("ProjectNew is not implemented"))
 }
 
 // UnclaimedDiscDirList searches for a matching request and returns the corresponding response
@@ -137,11 +123,7 @@ func (s *StubService) UnclaimedDiscDirList(ctx context.Context, req *connect.Req
 
 // ProjectAssignDiskDirs searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectAssignDiskDirs(ctx context.Context, req *connect.Request[v1.ProjectAssignDiskDirsRequest]) (*connect.Response[v1.ProjectAssignDiskDirsResponse], error) {
-	resp, err := findMatchingResponse(req.Msg, s.projectAssignDiskDirsMappings)
-	if err != nil {
-		return nil, err
-	}
-	return connect.NewResponse(resp), nil
+	return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("ProjectAssignDiskDirs is not implemented"))
 }
 
 // ProjectGet searches for a matching request and returns the corresponding response
@@ -155,11 +137,7 @@ func (s *StubService) ProjectGet(ctx context.Context, req *connect.Request[v1.Pr
 
 // ProjectCategorizeFiles searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectCategorizeFiles(ctx context.Context, req *connect.Request[v1.ProjectCategorizeFilesRequest]) (*connect.Response[v1.ProjectCategorizeFilesResponse], error) {
-	resp, err := findMatchingResponse(req.Msg, s.projectCategorizeFilesMappings)
-	if err != nil {
-		return nil, err
-	}
-	return connect.NewResponse(resp), nil
+	return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("ProjectCategorizeFiles is not implemented"))
 }
 
 // MovieSearch searches for a matching request and returns the corresponding response
@@ -172,29 +150,17 @@ func (s *StubService) MovieSearch(ctx context.Context, req *connect.Request[v1.M
 
 // ProjectSetMetadata searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectSetMetadata(ctx context.Context, req *connect.Request[v1.ProjectSetMetadataRequest]) (*connect.Response[v1.ProjectSetMetadataResponse], error) {
-	resp, err := findMatchingResponse(req.Msg, s.projectSetMetadataMappings)
-	if err != nil {
-		return nil, err
-	}
-	return connect.NewResponse(resp), nil
+	return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("ProjectSetMetadata is not implemented"))
 }
 
 // ProjectFinish searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectFinish(ctx context.Context, req *connect.Request[v1.ProjectFinishRequest]) (*connect.Response[v1.ProjectFinishResponse], error) {
-	resp, err := findMatchingResponse(req.Msg, s.projectFinishMappings)
-	if err != nil {
-		return nil, err
-	}
-	return connect.NewResponse(resp), nil
+	return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("ProjectFinish is not implemented"))
 }
 
 // ProjectAbandon searches for a matching request and returns the corresponding response
 func (s *StubService) ProjectAbandon(ctx context.Context, req *connect.Request[v1.ProjectAbandonRequest]) (*connect.Response[v1.ProjectAbandonResponse], error) {
-	resp, err := findMatchingResponse(req.Msg, s.projectAbandonMappings)
-	if err != nil {
-		return nil, err
-	}
-	return connect.NewResponse(resp), nil
+	return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("ProjectAbandon is not implemented"))
 }
 
 // NewStubService creates a new StubService with predefined request/response mappings
@@ -215,41 +181,30 @@ func NewStubService() *StubService {
 				Response: &v1.HelloWorldResponse{Message: "Hello, world!"},
 			},
 		},
-		// Other mappings are empty for now, will return NOT_FOUND
-		projectListMappings:             []RequestResponseMapping[*v1.ProjectListRequest, *v1.ProjectListResponse]{},
-		projectNewMappings:              []RequestResponseMapping[*v1.ProjectNewRequest, *v1.ProjectNewResponse]{},
-		unclaimedDiscDirListMappings:    []RequestResponseMapping[*v1.UnclaimedDiscDirListRequest, *v1.UnclaimedDiscDirListResponse]{},
-		projectAssignDiskDirsMappings:   []RequestResponseMapping[*v1.ProjectAssignDiskDirsRequest, *v1.ProjectAssignDiskDirsResponse]{},
-		projectGetMappings:              []RequestResponseMapping[*v1.ProjectGetRequest, *v1.ProjectGetResponse]{},
-		projectCategorizeFilesMappings:  []RequestResponseMapping[*v1.ProjectCategorizeFilesRequest, *v1.ProjectCategorizeFilesResponse]{},
-		movieSearchMappings:             []RequestResponseMapping[*v1.MovieSearchRequest, *v1.MovieSearchResponse]{},
-		projectSetMetadataMappings:      []RequestResponseMapping[*v1.ProjectSetMetadataRequest, *v1.ProjectSetMetadataResponse]{},
-		projectFinishMappings:           []RequestResponseMapping[*v1.ProjectFinishRequest, *v1.ProjectFinishResponse]{},
-		projectAbandonMappings:          []RequestResponseMapping[*v1.ProjectAbandonRequest, *v1.ProjectAbandonResponse]{},
 	}
 }
 
 func main() {
 	stubService := NewStubService()
-	
+
 	// Create the logging interceptor
 	loggingInterceptor := &LoggingInterceptor{}
-	
+
 	// Create the handler with the logging interceptor
 	path, handler := inv1connect.NewServiceHandler(
 		stubService,
 		connect.WithInterceptors(loggingInterceptor),
 	)
-	
+
 	mux := http.NewServeMux()
 	mux.Handle(path, handler)
-	
+
 	// Support HTTP/2 without TLS for development
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: h2c.NewHandler(mux, &http2.Server{}),
 	}
-	
+
 	fmt.Println("Starting video-in stub server on :8080")
 	log.Fatal(server.ListenAndServe())
 }

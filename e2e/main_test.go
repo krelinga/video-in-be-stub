@@ -205,6 +205,73 @@ func TestEndToEnd(t *testing.T) {
 		}
 	})
 
+	t.Run("UnimplementedMethods", func(t *testing.T) {
+		calls := []struct {
+			method string
+			call   func() error
+		}{
+			{
+				method: "ProjectNew",
+				call: func() error {
+					req := connect.NewRequest(&v1.ProjectNewRequest{})
+					_, err := client.ProjectNew(ctx, req)
+					return err
+				},
+			},
+			{
+				method: "ProjectAssignDiskDirs",
+				call: func() error {
+					req := connect.NewRequest(&v1.ProjectAssignDiskDirsRequest{})
+					_, err := client.ProjectAssignDiskDirs(ctx, req)
+					return err
+				},
+			},
+			{
+				method: "ProjectCategorizeFiles",
+				call: func() error {
+					req := connect.NewRequest(&v1.ProjectCategorizeFilesRequest{})
+					_, err := client.ProjectCategorizeFiles(ctx, req)
+					return err
+				},
+			},
+			{
+				method: "ProjectSetMetadata",
+				call: func() error {
+					req := connect.NewRequest(&v1.ProjectSetMetadataRequest{})
+					_, err := client.ProjectSetMetadata(ctx, req)
+					return err
+				},
+			},
+			{
+				method: "ProjectFinish",
+				call: func() error {
+					req := connect.NewRequest(&v1.ProjectFinishRequest{})
+					_, err := client.ProjectFinish(ctx, req)
+					return err
+				},
+			},
+			{
+				method: "ProjectAbandon",
+				call: func() error {
+					req := connect.NewRequest(&v1.ProjectAbandonRequest{})
+					_, err := client.ProjectAbandon(ctx, req)
+					return err
+				},
+			},
+		}
+		for _, c := range calls {
+			t.Run(c.method, func(t *testing.T) {
+				err := c.call()
+				if err == nil {
+					t.Fatalf("Expected error for unimplemented method '%s', got nil", c.method)
+				}
+				if !strings.Contains(err.Error(), "is not implemented") {
+					t.Fatalf("Expected unimplemented error for method '%s', got: %v", c.method, err)
+				}
+			})
+		}
+	})
+
 	t.Run("Check RPC Call in Logs", func(t *testing.T) {
 		// Fetch container logs
 		logs, err := container.Logs(ctx)
