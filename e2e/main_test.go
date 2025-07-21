@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
-	v1 "buf.build/gen/go/krelinga/proto/protocolbuffers/go/krelinga/video/in/v1"
 	"buf.build/gen/go/krelinga/proto/connectrpc/go/krelinga/video/in/v1/inv1connect"
+	v1 "buf.build/gen/go/krelinga/proto/protocolbuffers/go/krelinga/video/in/v1"
 	"connectrpc.com/connect"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -24,7 +26,7 @@ func TestEndToEnd_HelloWorld(t *testing.T) {
 			Dockerfile: "Dockerfile",
 		},
 		ExposedPorts: []string{"8080/tcp"},
-		WaitingFor: wait.ForListeningPort("8080/tcp").WithStartupTimeout(30 * time.Second),
+		WaitingFor:   wait.ForListeningPort("8080/tcp").WithStartupTimeout(30 * time.Second),
 	}
 
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
@@ -79,4 +81,24 @@ func TestEndToEnd_HelloWorld(t *testing.T) {
 	}
 
 	t.Logf("Successfully called HelloWorld method via container at %s", serviceURL)
+
+	// Fetch container logs
+	logs, err := container.Logs(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get container logs: %v", err)
+	}
+	defer logs.Close()
+
+	// Read logs into a string
+	logBytes, err := io.ReadAll(logs)
+	if err != nil {
+		t.Fatalf("Failed to read container logs: %v", err)
+	}
+	logStr := string(logBytes)
+
+	// Check for 'RPC Call' in logs
+	if !strings.Contains(logStr, "RPC Call") {
+		t.Fatalf("Expected 'RPC Call' in container logs, but it was not found. Logs:\n%s", logStr)
+	}
+	t.Log("'RPC Call' found in container logs.")
 }
