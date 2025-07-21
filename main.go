@@ -129,10 +129,8 @@ func (s *StubService) ProjectNew(ctx context.Context, req *connect.Request[v1.Pr
 
 // UnclaimedDiscDirList searches for a matching request and returns the corresponding response
 func (s *StubService) UnclaimedDiscDirList(ctx context.Context, req *connect.Request[v1.UnclaimedDiscDirListRequest]) (*connect.Response[v1.UnclaimedDiscDirListResponse], error) {
-	resp, err := findMatchingResponse(req.Msg, s.unclaimedDiscDirListMappings)
-	if err != nil {
-		return nil, err
-	}
+	resp := &v1.UnclaimedDiscDirListResponse{}
+	resp.Dirs = append(resp.Dirs, data.Unclaimed...)
 	return connect.NewResponse(resp), nil
 }
 

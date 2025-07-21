@@ -95,13 +95,6 @@ func TestStubService_AllMethods_ReturnNotFound(t *testing.T) {
 			},
 		},
 		{
-			name: "UnclaimedDiscDirList",
-			call: func() error {
-				_, err := service.UnclaimedDiscDirList(ctx, connect.NewRequest(&v1.UnclaimedDiscDirListRequest{}))
-				return err
-			},
-		},
-		{
 			name: "ProjectAssignDiskDirs",
 			call: func() error {
 				_, err := service.ProjectAssignDiskDirs(ctx, connect.NewRequest(&v1.ProjectAssignDiskDirsRequest{}))

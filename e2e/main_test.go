@@ -142,6 +142,36 @@ func TestEndToEnd(t *testing.T) {
 		}
 	})
 
+	expectedUnclaimed := []string{"Unclaimed1", "Unclaimed 2"}
+	t.Run("UnclaimedDiscDirList", func(t *testing.T) {
+		// Call the UnclaimedDiscDirList method
+		req := connect.NewRequest(&v1.UnclaimedDiscDirListRequest{})
+		resp, err := client.UnclaimedDiscDirList(ctx, req)
+		if err != nil {
+			t.Fatalf("UnclaimedDiscDirList call failed: %v", err)
+		}
+		// Verify we got a response (even if it's empty as expected from the stub)
+		if resp == nil {
+			t.Fatal("Expected non-nil response")
+		}
+		// Verify the response message is not nil
+		if resp.Msg == nil {
+			t.Fatal("Expected non-nil response message")
+		}
+		for _, eu := range expectedUnclaimed {
+			found := false
+			for _, u := range resp.Msg.Dirs {
+				if u == eu {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Fatalf("Expected unclaimed '%s' not found in response", eu)
+			}
+		}
+	})
+
 	t.Run("Check RPC Call in Logs", func(t *testing.T) {
 		// Fetch container logs
 		logs, err := container.Logs(ctx)
