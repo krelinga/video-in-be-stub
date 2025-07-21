@@ -20,18 +20,16 @@ func TestEndToEnd(t *testing.T) {
 	ctx := context.Background()
 
 	// Build and start the container using the Dockerfile from parent directory
-	req := testcontainers.ContainerRequest{
-		FromDockerfile: testcontainers.FromDockerfile{
-			Context:    "..",
-			Dockerfile: "Dockerfile",
-		},
-		ExposedPorts: []string{"8080/tcp"},
-		WaitingFor:   wait.ForListeningPort("8080/tcp").WithStartupTimeout(30 * time.Second),
-	}
-
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
+		ContainerRequest: testcontainers.ContainerRequest{
+			FromDockerfile: testcontainers.FromDockerfile{
+				Context:    "..",
+				Dockerfile: "Dockerfile",
+			},
+			ExposedPorts: []string{"8080/tcp"},
+			WaitingFor:   wait.ForListeningPort("8080/tcp").WithStartupTimeout(30 * time.Second),
+		},
+		Started: true,
 	})
 	if err != nil {
 		t.Fatalf("Failed to start container: %v", err)
@@ -42,26 +40,28 @@ func TestEndToEnd(t *testing.T) {
 		}
 	}()
 
-	// Get the mapped port
-	mappedPort, err := container.MappedPort(ctx, "8080")
-	if err != nil {
-		t.Fatalf("Failed to get mapped port: %v", err)
-	}
+	client := func() inv1connect.ServiceClient {
+		// Get the mapped port
+		mappedPort, err := container.MappedPort(ctx, "8080")
+		if err != nil {
+			t.Fatalf("Failed to get mapped port: %v", err)
+		}
 
-	// Get the container host
-	host, err := container.Host(ctx)
-	if err != nil {
-		t.Fatalf("Failed to get container host: %v", err)
-	}
+		// Get the container host
+		host, err := container.Host(ctx)
+		if err != nil {
+			t.Fatalf("Failed to get container host: %v", err)
+		}
 
-	// Create the service URL
-	serviceURL := fmt.Sprintf("http://%s:%s", host, mappedPort.Port())
+		// Create the service URL
+		serviceURL := fmt.Sprintf("http://%s:%s", host, mappedPort.Port())
 
-	// Create a ConnectRPC client
-	client := inv1connect.NewServiceClient(
-		http.DefaultClient,
-		serviceURL,
-	)
+		// Create a ConnectRPC client
+		return inv1connect.NewServiceClient(
+			http.DefaultClient,
+			serviceURL,
+		)
+	}()
 
 	t.Run("HelloWorld", func(t *testing.T) {
 		// Call the HelloWorld method
@@ -80,8 +80,6 @@ func TestEndToEnd(t *testing.T) {
 		if resp.Msg == nil {
 			t.Fatal("Expected non-nil response message")
 		}
-
-		t.Logf("Successfully called HelloWorld method via container at %s", serviceURL)
 	})
 
 	t.Run("Check RPC Call in Logs", func(t *testing.T) {
@@ -103,6 +101,5 @@ func TestEndToEnd(t *testing.T) {
 		if !strings.Contains(logStr, "RPC Call") {
 			t.Fatalf("Expected 'RPC Call' in container logs, but it was not found. Logs:\n%s", logStr)
 		}
-		t.Log("'RPC Call' found in container logs.")
 	})
 }
