@@ -40,6 +40,57 @@ var data = &Model{
 		},
 		{
 			Project: "Name With Spaces",
+			Discs: []*v1.ProjectDisc{
+				{
+					Disc: "Disc Waiting Thumbs",
+					ThumbState: "waiting",
+				},
+				{
+					Disc: "Disc Working Thumbs",
+					ThumbState: "working",
+				},
+				{
+					Disc: "Disc Error Thumbs",
+					ThumbState: "error",
+				},
+				{
+					Disc: "Disc Done Thumbs",
+					ThumbState: "done",
+					DiscFiles: []*v1.DiscFile{
+						{
+							File: "file1.mkv",
+							Category: "main_title",
+							Thumb: "file1.jpg",
+							HumanSize: "1.2 GB",
+							HumanDuration: "01:30:00",
+							NumChapters: 10,
+						},
+						{
+							File: "file2.mkv",
+							Category: "extra",
+							Thumb: "file2.jpg",
+							HumanSize: "500 MB",
+							HumanDuration: "00:45:00",
+							NumChapters: 5,
+						},
+						{
+							File: "file3.mkv",
+							Category: "trash",
+							Thumb: "file3.jpg",
+							HumanSize: "300 MB",
+							HumanDuration: "00:30:00",
+							NumChapters: 3,
+						},
+						{
+							File: "file4.mkv",
+							Thumb: "file4.jpg",
+							HumanSize: "400 MB",
+							HumanDuration: "00:40:00",
+							NumChapters: 4,
+						},
+					},
+				},
+			},
 		},
 	},
 	Unclaimed: []string{"Unclaimed1", "Unclaimed 2"},
